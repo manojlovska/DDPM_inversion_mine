@@ -102,11 +102,14 @@ def inversion_forward_process(model, x0,
                             etas = None,    
                             prog_bar = False,
                             prompt = "",
+                            id_emb = None,
                             cfg_scale = 3.5,
                             num_inference_steps=50, eps = None):
 
     if not prompt=="":
         text_embeddings = encode_text(model, prompt)
+    else:
+        text_embeddings = id_emb if id_emb is not None else None
     uncond_embedding = encode_text(model, "")
     timesteps = model.scheduler.timesteps.to(model.device)
     variance_noise_shape = (
@@ -213,6 +216,7 @@ def inversion_reverse_process(model,
                     xT, 
                     etas = 0,
                     prompts = "",
+                    id_emb = None,
                     cfg_scales = None,
                     prog_bar = False,
                     zs = None,
@@ -223,7 +227,7 @@ def inversion_reverse_process(model,
 
     cfg_scales_tensor = torch.Tensor(cfg_scales).view(-1,1,1,1).to(model.device)
 
-    text_embeddings = encode_text(model, prompts)
+    text_embeddings = encode_text(model, prompts) if id_emb is None else id_emb
     uncond_embedding = encode_text(model, [""] * batch_size)
 
     if etas is None: etas = 0
